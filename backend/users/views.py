@@ -1,3 +1,61 @@
-from django.shortcuts import render
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+# from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+# from rest_framework_simplejwt.tokens import AccessToken
+# from reviews.models import Category, Comment, Genre, Review, Title
+from .models import CustomUser
 
-# Create your views here.
+from .serializers import (
+    CreateCustomUserSerializer,
+    UserSerializer,
+)
+
+class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    """
+    A viewset that provides `retrieve`, `create`, and `list` actions.
+
+    To use it, override the class and set the `.queryset` and
+    `.serializer_class` attributes.
+    """
+    pass
+
+class UsersViewSet(CreateListRetrieveViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateCustomUserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            self.perform_create(serializer)
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def retrieve(self, request, pk=None):
+        queryset = CustomUser.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(
+        methods=["get"],
+        detail=False,
+        #permission_classes=(IsAuthenticated,),
+        url_path="me",
+        url_name="users_me",
+    )
+    def me(self, request, *args, **kwargs):
+        user_instance = self.request.user
+        serializer = self.get_serializer(user_instance)
+        return Response(serializer.data, status.HTTP_200_OK)
