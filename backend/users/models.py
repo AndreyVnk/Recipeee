@@ -10,9 +10,9 @@ class CustomUser(AbstractUser):
     username = models.CharField(_('username'), max_length=150, unique=True)
     first_name = models.CharField(_('first_name'), max_length=150)
     last_name = models.CharField(_('last_name'), max_length=150)
-    password = models.CharField(_('password'), max_length=150)
+    #password = models.CharField(_('password'), max_length=150)
     is_subscribed = models.BooleanField(default=False)
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 

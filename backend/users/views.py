@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 # from rest_framework_simplejwt.tokens import AccessToken
 # from reviews.models import Category, Comment, Genre, Review, Title
@@ -28,13 +28,21 @@ class CreateListRetrieveViewSet(mixins.CreateModelMixin,
 class UsersViewSet(CreateListRetrieveViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
 
-    def create(self, request, *args, **kwargs):
-        serializer = CreateCustomUserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            self.perform_create(serializer)
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserSerializer
+        return CreateCustomUserSerializer 
+
+    #def create(self, request, *args, **kwargs):
+    #    serializer = CreateCustomUserSerializer(data=request.data)
+    #    if serializer.is_valid(raise_exception=True):
+    #        serializer.save()
+    #    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #    
+    #def perform_create(self, serializer):
+    #    serializer.save()
 
     def retrieve(self, request, pk=None):
         queryset = CustomUser.objects.all()
@@ -45,7 +53,7 @@ class UsersViewSet(CreateListRetrieveViewSet):
     @action(
         methods=["get"],
         detail=False,
-        #permission_classes=(IsAuthenticated,),
+        permission_classes=(IsAuthenticated,),
         url_path="me",
         url_name="users_me",
     )
