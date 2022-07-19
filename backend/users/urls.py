@@ -13,8 +13,7 @@ router.register(r'users', UsersViewSet, basename='users')
 
 urlpatterns = [
     path('users/set_password/', ChangePasswordView.as_view(), name='change-password'),
-    path('auth/', include('rest_auth.urls')),
-    # path('users/', views.UsersViewSet),
+    #path('auth/', include('rest_auth.urls')),
     path('', include(router.urls)),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
