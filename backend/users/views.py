@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 # from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, UpdateAPIView
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -17,7 +17,16 @@ from .models import CustomUser
 from .serializers import (
     CreateCustomUserSerializer,
     UserSerializer,
+    ChangePasswordSerializer,
 )
+
+class ChangePasswordView(UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    model = CustomUser
+    permission_classes = (AllowAny,)
+
+    def get_object(self, queryset=None):
+        return self.request.user
 
 class CreateListRetrieveViewSet(mixins.CreateModelMixin,
                                 mixins.ListModelMixin,
@@ -31,24 +40,9 @@ class UsersViewSet(CreateListRetrieveViewSet):
     permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return UserSerializer
         return CreateCustomUserSerializer 
-
-    #def create(self, request, *args, **kwargs):
-    #    serializer = CreateCustomUserSerializer(data=request.data)
-    #    if serializer.is_valid(raise_exception=True):
-    #        serializer.save()
-    #    return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #    
-    #def perform_create(self, serializer):
-    #    serializer.save()
-
-    def retrieve(self, request, pk=None):
-        queryset = CustomUser.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status.HTTP_200_OK)
 
     @action(
         methods=["get"],
