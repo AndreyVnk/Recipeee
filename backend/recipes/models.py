@@ -6,19 +6,21 @@ from users.models import CustomUser
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=32)
-    color = models.CharField(max_length=32)
+    name = models.CharField(max_length=32, unique=True, blank=False)
+    color = models.CharField(max_length=32, unique=True, blank=False)
     slug = models.SlugField(
         _('Tag slug'), unique=True, max_length=50, blank=False
     )
-
-    def __str__(self):
-        return self.name    
 
     class Meta:
         verbose_name = _('Tags')
         verbose_name_plural = _('Tags')
         ordering = ['slug']
+
+    def __str__(self):
+        return self.name    
+
+
 
 class Ingredient(models.Model):
     name = models.CharField(_('Name'), max_length=200, blank=False)
@@ -39,27 +41,25 @@ class Recipe(models.Model):
         verbose_name=_('Recipe author'),
     )
     name = models.CharField(_('Name'), max_length=200, blank=False)
-    text = models.CharField(_('Describing'), max_length=300,)
-
-    ingredient = models.ManyToManyField(
-        Ingredient, through='RecipeIngredient',
-        related_name='ingredients'
-    )
-    cooking_time = models.IntegerField(
-        validators=[
-            MinValueValidator(1)
-        ]
-    )
     image = models.ImageField(
         'Image',
         upload_to='recipes/',
         null=True, blank=True
     )
-    is_favorited = models.BooleanField(default=False)
-    is_in_shopping_cart = models.BooleanField(default=False)
+    text = models.TextField(_('Describing'),)
+    ingredient = models.ManyToManyField(
+        Ingredient, through='RecipeIngredient',
+        related_name='recipes'
+    )
     tags = models.ManyToManyField(
-        Tag, through='TagRecipe'
+        Tag, through='TagRecipe',
+        related_name='recipes'
 
+    )
+    cooking_time = models.IntegerField(
+        validators=[
+            MinValueValidator(1)
+        ]
     )
 
     class Meta:
@@ -75,12 +75,12 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredients'
+        related_name='recipeingredient'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipes',
+        related_name='ingredientrecipe',
     )
     amount = models.IntegerField(
         verbose_name='Amount',
@@ -88,8 +88,25 @@ class RecipeIngredient(models.Model):
 
 
 class TagRecipe(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tag_recipe',)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_tag',)
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="follower")
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="following")
+
+    class Meta:
+        unique_together = ("user", "author")
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="shopping_carts")
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="shopping_carts")
+
+
+class Favorites(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="favorites")
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="favorites")

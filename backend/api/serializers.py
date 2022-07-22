@@ -19,12 +19,12 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('name', 'slug')
+        fields = ('id', 'name',' color', 'slug')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, required=True)
-    ingredients = IngredientSerializer(many=True, required=True)
+    tags = serializers.StringRelatedField(many=True, read_only=False)
+    ingredients = IngredientSerializer(many=True)
 
     class Meta:
         model = Recipe
@@ -37,7 +37,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         for tag in tags:
-            # Создадим новую запись или получим существующий экземпляр из БД
             current_tag, status = Tag.objects.get_or_create(
                 **tag)
             TagRecipe.objects.create(

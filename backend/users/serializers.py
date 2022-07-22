@@ -1,28 +1,29 @@
 from rest_framework import serializers
 from users.models import CustomUser
+from django.shortcuts import get_object_or_404
 
 
 class ChangePasswordSerializer(serializers.Serializer):
     """
     Serializer for password change endpoint.
     """
-    new_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, read_only=False)
     current_password = serializers.CharField(required=True)
+
+    #class Meta:
+    #    model = CustomUser
+    #    fields = ('new_password', 'current_password')
 
     def validate(self, data):
         if not self.context['request'].user.check_password(data.get('current_password')):
             raise serializers.ValidationError({'current_password': 'Wrong password.'})
         return data
 
-    def update(self, instance, validated_data):
-        instance.set_password(validated_data['new_password'])
-        instance.save()
-        return instance
-
-    #@property
-    #def data(self):
-    #    # just return success dictionary. you can change this to your need, but i dont think output should be user data after password change
-    #    return {'Success': True}
+    def create(self, validated_data):
+        user = self.context["request"].user
+        user.set_password(validated_data['new_password'])
+        user.save()
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -31,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CustomUser
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name')
 
 
 class CreateCustomUserSerializer(serializers.ModelSerializer):
