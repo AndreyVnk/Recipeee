@@ -47,7 +47,7 @@ class Recipe(models.Model):
         null=True, blank=True
     )
     text = models.TextField(_('Describing'),)
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient, through='RecipeIngredient',
         related_name='recipes'
     )
@@ -72,24 +72,28 @@ class Recipe(models.Model):
         
 
 class RecipeIngredient(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='recipeingredient'
-    )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredientrecipe',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
     )
     amount = models.IntegerField(
         verbose_name='Amount',
         validators=[MinValueValidator(0)])
 
+    class Meta:
+        unique_together = ("recipe", "ingredient")
+
 
 class TagRecipe(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tag_recipe',)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_tag',)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("tag", "recipe")
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
@@ -103,10 +107,15 @@ class Follow(models.Model):
         unique_together = ("user", "author")
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="shopping_carts")
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="shopping_carts")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='shopping_cart',)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='shopping_cart',)
 
+    class Meta:
+        unique_together = ("user", "recipe")
 
-class Favorites(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="favorites")
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="favorites")
+class Favorite(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='favorites',)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='favorites',)
+
+    class Meta:
+        unique_together = ("user", "recipe")

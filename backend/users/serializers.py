@@ -1,29 +1,16 @@
 from rest_framework import serializers
 from users.models import CustomUser
-from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from recipes.models import Follow
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    model = CustomUser
     """
     Serializer for password change endpoint.
     """
-    new_password = serializers.CharField(required=True, read_only=False)
+    new_password = serializers.CharField(required=True)
     current_password = serializers.CharField(required=True)
-
-    #class Meta:
-    #    model = CustomUser
-    #    fields = ('new_password', 'current_password')
-
-    def validate(self, data):
-        if not self.context['request'].user.check_password(data.get('current_password')):
-            raise serializers.ValidationError({'current_password': 'Wrong password.'})
-        return data
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        user.set_password(validated_data['new_password'])
-        user.save()
-        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,9 +26,14 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
     """
     Serializer for POST method users endpoint.
     """
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'first_name', 'last_name', 'password')
+        fields = (
+            'email', 'username', 'first_name', 'last_name', 'password', 
+            'is_subscribed'
+        )
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
@@ -50,6 +42,12 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
                 {"Wrong username": "User 'me' can not be created."}
             )
         return data
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.id).exists()
 
     def create(self, validated_data):
         user = CustomUser.objects.create(
