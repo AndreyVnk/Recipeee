@@ -3,7 +3,9 @@ from django.contrib import admin
 # from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+
+from .models import CustomUser, Follow
+
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -25,3 +27,4 @@ class CustomUserAdmin(UserAdmin):
     ordering = ('email',)   
 
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Follow)

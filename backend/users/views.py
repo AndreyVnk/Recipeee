@@ -1,27 +1,27 @@
-from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+
 from django.shortcuts import get_object_or_404
-# from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import GenericAPIView, UpdateAPIView, CreateAPIView, RetrieveAPIView
+from rest_framework.generics import (CreateAPIView, GenericAPIView,
+                                     RetrieveAPIView, UpdateAPIView)
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import CustomUser
+from api.serializers import FollowSerializer
 
-from .serializers import (
-    CreateCustomUserSerializer,
-    UserSerializer,
-    ChangePasswordSerializer,
-)
+from .models import CustomUser, Follow
+from .serializers import (ChangePasswordSerializer, CreateCustomUserSerializer,
+                          UserSerializer)
 
-class CreateListViewSet(mixins.CreateModelMixin,
-                                mixins.ListModelMixin,
-                                viewsets.GenericViewSet):
+
+class CreateListRetrieveViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
     pass
 
 
@@ -31,46 +31,98 @@ class ChangePasswordView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_object(self, queryset=None):
-       return self.request.user
+        return self.request.user
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            if not self.object.check_password(serializer.data.get("current_password")):
-                return Response({"current_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            if not self.object.check_password(
+                serializer.data.get("current_password")
+            ):
+                return Response(
+                    {"current_password": ["Wrong password."]},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
-            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Password updated successfully"},
+                status=status.HTTP_200_OK
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UsersViewSet(CreateListViewSet):
+class UsersViewSet(CreateListRetrieveViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return UserSerializer
-        return CreateCustomUserSerializer 
+        return CreateCustomUserSerializer
 
     @action(
         methods=["get"],
         detail=False,
         permission_classes=(IsAuthenticated,),
-        url_path="me",
-        url_name="users_me",
     )
     def me(self, request, *args, **kwargs):
         user_instance = self.request.user
         serializer = self.get_serializer(user_instance)
         return Response(serializer.data, status.HTTP_200_OK)
 
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def subscriptions(self, request):
+        user = request.user
+        queryset = Follow.objects.filter(user=user)
+        serializer = FollowSerializer(
+            queryset,
+            many=True,
+            context={'request': request}
+        )
+        return Response(serializer.data, status.HTTP_200_OK)
 
-class UserViewSet(RetrieveAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk=None):
+        if request.method == 'POST':
+            return self.add_obj(Follow, request, pk)
+        elif request.method == 'DELETE':
+            return self.delete_obj(Follow, request, pk)
+        return None
+
+    def add_obj(self, model, request, pk):
+        author = get_object_or_404(CustomUser, id=pk)
+        if model.objects.filter(user=request.user, author=author).exists():
+            return Response({
+                'message': 'Your already has subcribed on this author'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        if request.user == author:
+            return Response({
+                'message': "You can't subscribe on yourself"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        follow = model.objects.create(user=request.user, author=author)
+        serializer = FollowSerializer(
+            follow, context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_obj(self, model, request, pk):
+        author = get_object_or_404(CustomUser, id=pk)
+        if request.user == author:
+            return Response({
+                'errors': "You can't unsubcribed on yourself"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        obj = model.objects.filter(user=request.user, author=author)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({
+            'message': 'Subcription on this author has already been deleted'
+        }, status=status.HTTP_400_BAD_REQUEST)

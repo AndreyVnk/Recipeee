@@ -3,18 +3,16 @@ from django.shortcuts import get_object_or_404
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from recipes.models import (
-    Follow, Recipe, Ingredient, Tag, 
-    RecipeIngredient, Favorite, ShoppingCart)
-from .serializers import (
-    RecipeSerializer, IngredientSerializer,
-    TagSerializer, MinRecipeSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+
+from .serializers import (IngredientSerializer, MinRecipeSerializer,
+                          RecipeSerializer, TagSerializer)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -87,14 +85,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = ('attachment; '
                                            'filename="shopping_list.pdf"')
         page = canvas.Canvas(response)
-        page.setFont('DejaVuSans', size=24)
-        page.drawString(200, 800, 'Список ингредиентов')
-        page.setFont('DejaVuSans', size=16)
-        height = 750
+        page.setFont('DejaVuSans', size=20)
+        page.drawString(230, 770, 'Список ингредиентов')
+        page.setFont('DejaVuSans', size=12)
+        height = 650
         for i, (name, data) in enumerate(final_list.items(), 1):
-            page.drawString(75, height, (f'<{i}> {name} - {data["amount"]}, '
+            page.drawString(60, height, (f'<{i}> {name} - {data["amount"]}, '
                                          f'{data["measurement_unit"]}'))
-            height -= 25
+            height -= 20
         page.showPage()
         page.save()
         return response
