@@ -6,6 +6,8 @@ from users.models import CustomUser
 
 
 class Tag(models.Model):
+    """Tag model."""
+
     BLUE = '#0000FF'
     ORANGE = '#FFA500'
     GREEN = '#008000'
@@ -22,7 +24,7 @@ class Tag(models.Model):
 
     name = models.CharField(
         _('Name'), max_length=32, unique=True, blank=False
-        )
+    )
     color = models.CharField(
         _('Color'), max_length=32, unique=True, choices=COLOR_CHOICES,
     )
@@ -32,22 +34,24 @@ class Tag(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = _('Tag')
-        verbose_name_plural = _('Tags')
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
 
     def __str__(self):
         return self.name
 
 
 class Ingredient(models.Model):
+    """Ingredient model."""
+
     name = models.CharField(_('Name'), max_length=200, blank=False)
     measurement_unit = models.CharField(
         _('Measurement_unit'), max_length=15)
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = _('Ingredient')
-        verbose_name_plural = _('Ingredient')
+        verbose_name = 'Ingredient'
+        verbose_name_plural = 'Ingredients'
         constraints = [
             models.UniqueConstraint(fields=('name', 'measurement_unit',),
                                     name='unique ingredient')
@@ -58,8 +62,9 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    """Recipe model."""
+
     author = models.ForeignKey(
-        _('Recipe author'),
         CustomUser,
         on_delete=models.CASCADE,
     )
@@ -87,24 +92,27 @@ class Recipe(models.Model):
             MinValueValidator(1)
         ]
     )
+    pub_date = models.DateTimeField(
+        _('Public date'), auto_now_add=True
+    )
 
     class Meta:
-        ordering = ('-id',)
-        verbose_name = _('Recipes')
-        verbose_name_plural = _('Recipes')
+        ordering = ('-pub_date',)
+        verbose_name = 'Recipe'
+        verbose_name_plural = 'Recipes'
 
     def __str__(self):
         return self.name
 
 
 class RecipeIngredient(models.Model):
+    """RecipeIngredient model."""
+
     ingredient = models.ForeignKey(
-        _('Ingredient'),
         Ingredient,
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
-        _('Recipe'),
         Recipe,
         on_delete=models.CASCADE,
     )
@@ -120,15 +128,17 @@ class RecipeIngredient(models.Model):
 
 
 class TagRecipe(models.Model):
+    """TagRecipe model."""
+
     tag = models.ForeignKey(
-        _('Tag'),
         Tag, on_delete=models.CASCADE)
     recipe = models.ForeignKey(
-        _('Recipe'),
         Recipe, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ('-id',)
+        verbose_name = 'Tag recipe'
+        verbose_name_plural = 'Tag recipes'
         unique_together = ("tag", "recipe")
 
     def __str__(self):
@@ -136,14 +146,14 @@ class TagRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """ShoppingCart model."""
+
     user = models.ForeignKey(
-        _('User'),
         CustomUser,
         on_delete=models.CASCADE,
         related_name='shopping_cart',
     )
     recipe = models.ForeignKey(
-        _('Recipe'),
         Recipe,
         on_delete=models.CASCADE,
         related_name='shopping_cart',
@@ -157,14 +167,14 @@ class ShoppingCart(models.Model):
 
 
 class Favorite(models.Model):
+    """Favorite model."""
+
     user = models.ForeignKey(
-        _('User'),
         CustomUser,
         on_delete=models.CASCADE,
         related_name='favorites',
     )
     recipe = models.ForeignKey(
-        _('Recipe'),
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorites',

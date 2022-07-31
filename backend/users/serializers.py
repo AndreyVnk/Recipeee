@@ -9,6 +9,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     """
     Serializer for password change endpoint.
     """
+
     model = CustomUser
     new_password = serializers.CharField(required=True)
     current_password = serializers.CharField(required=True)
@@ -18,6 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for users endpoint.
     """
+
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -38,6 +40,7 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
     """
     Serializer for POST method users endpoint.
     """
+
     class Meta:
         model = CustomUser
         fields = (

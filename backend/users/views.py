@@ -10,10 +10,8 @@ from api.pagination import LimitPageNumberPagination
 from api.serializers import FollowSerializer
 
 from .models import CustomUser, Follow
-from .serializers import (
-    ChangePasswordSerializer,
-    CreateCustomUserSerializer,
-    UserSerializer)
+from .serializers import (ChangePasswordSerializer, CreateCustomUserSerializer,
+                          UserSerializer)
 
 
 class CreateListRetrieveViewSet(
@@ -26,6 +24,8 @@ class CreateListRetrieveViewSet(
 
 
 class ChangePasswordView(CreateAPIView):
+    """Change password view."""
+
     serializer_class = ChangePasswordSerializer
     model = CustomUser
     permission_classes = (IsAuthenticated,)
@@ -56,6 +56,7 @@ class ChangePasswordView(CreateAPIView):
 
 
 class UsersViewSet(CreateListRetrieveViewSet):
+    """Users view."""
 
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer

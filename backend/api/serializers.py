@@ -3,25 +3,36 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import (
-    Ingredient, Recipe, RecipeIngredient, Tag)
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Follow
 from users.serializers import UserSerializer
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ingredient endpoint.
+    """
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """
+    Serializer for tag endpoint.
+    """
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
 class AmountIngredientSerializer(serializers.ModelSerializer):
+    """
+    Serializer for amount ingredient.
+    """
+
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -40,6 +51,10 @@ class AmountIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for recipe endpoint.
+    """
+
     ingredients = AmountIngredientSerializer(
         read_only=True, many=True, source='recipeingredient_set'
     )
@@ -140,6 +155,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class MinRecipeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for minimum recipe.
+    """
+
     image = Base64ImageField()
 
     class Meta:
@@ -149,6 +168,10 @@ class MinRecipeSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """
+    Serializer for following endpoint.
+    """
+
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
     username = serializers.ReadOnlyField(source='author.username')

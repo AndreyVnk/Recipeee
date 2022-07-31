@@ -11,14 +11,20 @@ from rest_framework.response import Response
 from api.filters import AuthorAndTagFilter, IngredientSearchFilter
 from api.pagination import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    Favorite, Ingredient, Recipe, RecipeIngredient,
+    ShoppingCart, Tag
+)
 
-from .serializers import (IngredientSerializer, MinRecipeSerializer,
-                          RecipeSerializer, TagSerializer)
+from .serializers import (
+    IngredientSerializer, MinRecipeSerializer,
+    RecipeSerializer, TagSerializer
+)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Ingredient view."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -27,12 +33,16 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Tag view."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Recipe view."""
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsOwnerOrReadOnly,)
@@ -55,9 +65,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
         if request.method == 'POST':
-            return self.add_obj(ShoppingCart, request.user, pk)
+            return self.add_obj(ShoppingCart, request, pk)
         elif request.method == 'DELETE':
-            return self.delete_obj(ShoppingCart, request.user, pk)
+            return self.delete_obj(ShoppingCart, request, pk)
         return None
 
     @action(detail=False, methods=['get'],
@@ -104,18 +114,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         page.save()
         return response
 
-    def add_obj(self, model, user, pk):
-        if model.objects.filter(user=user, recipe__id=pk).exists():
+    def add_obj(self, model, request, pk):
+        if model.objects.filter(user=request.user, recipe__id=pk).exists():
             return Response({
                 'message': 'Recipe is already in a list'
             }, status=status.HTTP_400_BAD_REQUEST)
         recipe = get_object_or_404(Recipe, id=pk)
-        model.objects.create(user=user, recipe=recipe)
+        model.objects.create(user=request.user, recipe=recipe)
         serializer = MinRecipeSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_obj(self, model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
+    def delete_obj(self, model, request, pk):
+        obj = model.objects.filter(user=request.user, recipe__id=pk)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

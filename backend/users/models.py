@@ -17,9 +17,9 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
     class Meta:
+        ordering = ('-date_joined',)
         verbose_name = _('user')
         verbose_name_plural = _('users')
-        ordering = ['-date_joined']
 
     def __str__(self):
         return self.email
@@ -27,10 +27,10 @@ class CustomUser(AbstractUser):
 
 class Follow(models.Model):
     """Follow model."""
-    
+
     user = models.ForeignKey(
         CustomUser,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name="follower"
     )
     author = models.ForeignKey(
@@ -40,7 +40,7 @@ class Follow(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Follow'
         verbose_name_plural = 'Follows'
         constraints = [
