@@ -1,19 +1,19 @@
 
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import (CreateAPIView, GenericAPIView,
-                                     RetrieveAPIView, UpdateAPIView)
-from rest_framework.mixins import CreateModelMixin
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from api.pagination import LimitPageNumberPagination
 from api.serializers import FollowSerializer
 
 from .models import CustomUser, Follow
-from .serializers import (ChangePasswordSerializer, CreateCustomUserSerializer,
-                          UserSerializer)
+from .serializers import (
+    ChangePasswordSerializer,
+    CreateCustomUserSerializer,
+    UserSerializer)
 
 
 class CreateListRetrieveViewSet(
@@ -56,9 +56,11 @@ class ChangePasswordView(CreateAPIView):
 
 
 class UsersViewSet(CreateListRetrieveViewSet):
+
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
+    pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:

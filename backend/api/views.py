@@ -5,9 +5,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.filters import AuthorAndTagFilter, IngredientSearchFilter
+from api.pagination import LimitPageNumberPagination
+from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 
@@ -18,18 +21,23 @@ from .serializers import (IngredientSerializer, MinRecipeSerializer,
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (IngredientSearchFilter,)
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+    pagination_class = LimitPageNumberPagination
+    filter_class = AuthorAndTagFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -69,7 +77,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     shopping_cart[name] = amount
                 else:
                     shopping_cart[name] += amount
-        final_list={}
+        final_list = {}
         for ingredient, amount in shopping_cart.items():
             measurement_unit = get_object_or_404(
                 Ingredient, name=ingredient
@@ -77,16 +85,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             final_list[ingredient] = {
                 'amount': amount,
                 'measurement_unit': measurement_unit
-                    
             }
         pdfmetrics.registerFont(
-            TTFont('DejaVuSans','DejaVuSans.ttf', 'UTF-8'))
+            TTFont('DejaVuSans', 'DejaVuSans.ttf', 'UTF-8'))
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = ('attachment; '
                                            'filename="shopping_list.pdf"')
         page = canvas.Canvas(response)
         page.setFont('DejaVuSans', size=20)
-        page.drawString(230, 770, 'Список ингредиентов')
+        page.drawString(230, 770, 'Ingredients list')
         page.setFont('DejaVuSans', size=12)
         height = 650
         for i, (name, data) in enumerate(final_list.items(), 1):
