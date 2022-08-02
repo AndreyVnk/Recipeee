@@ -81,7 +81,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = RecipeIngredient.objects.filter(
             recipe__shopping_cart__user=request.user).values_list(
                 'ingredient__name',
-                'ingredient__measurement_unit'
+                'ingredient__measurement_unit',
         ).annotate(count=Sum('amount')).order_by()
         pdfmetrics.registerFont(
             TTFont('DejaVuSans', 'DejaVuSans.ttf', 'UTF-8'))
