@@ -18,8 +18,8 @@ class CustomUser(AbstractUser):
 
     class Meta:
         ordering = ('-date_joined',)
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
 
     def __str__(self):
         return self.email
@@ -41,11 +41,9 @@ class Follow(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Follow'
-        verbose_name_plural = 'Follows'
+        verbose_name = _('Follow')
+        verbose_name_plural = _('Follows')
         constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique follow',
-            )
+            models.UniqueConstraint(fields=('user', 'author',),
+                                    name='unique follow')
         ]

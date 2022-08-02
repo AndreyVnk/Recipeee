@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from users.models import CustomUser
@@ -57,7 +58,7 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['username'] == 'me':
             raise serializers.ValidationError(
-                {"Wrong username": "User 'me' can not be created."}
+                {_("Wrong username"): _("User 'me' can not be created.")}
             )
         return data
 

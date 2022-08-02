@@ -15,27 +15,23 @@ class Tag(models.Model):
     YELLOW = '#FFFF00'
 
     COLOR_CHOICES = [
-        (BLUE, 'Синий'),
-        (ORANGE, 'Оранжевый'),
-        (GREEN, 'Зеленый'),
-        (PURPLE, 'Фиолетовый'),
-        (YELLOW, 'Желтый'),
+        (BLUE, _('Blue')),
+        (ORANGE, _('Orange')),
+        (GREEN, _('Green')),
+        (PURPLE, _('Purple')),
+        (YELLOW, _('Yellow')),
     ]
 
-    name = models.CharField(
-        _('Name'), max_length=32, unique=True, blank=False
-    )
+    name = models.CharField(_('Name'), max_length=32, unique=True)
     color = models.CharField(
         _('Color'), max_length=32, unique=True, choices=COLOR_CHOICES,
     )
-    slug = models.SlugField(
-        _('Tag slug'), unique=True, max_length=50, blank=False
-    )
+    slug = models.SlugField(_('Tag slug'), unique=True, max_length=50)
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
+        verbose_name = _('Tag')
+        verbose_name_plural = _('Tags')
 
     def __str__(self):
         return self.name
@@ -44,14 +40,14 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     """Ingredient model."""
 
-    name = models.CharField(_('Name'), max_length=200, blank=False)
+    name = models.CharField(_('Name'), max_length=200)
     measurement_unit = models.CharField(
         _('Measurement_unit'), max_length=15)
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Ingredient'
-        verbose_name_plural = 'Ingredients'
+        verbose_name = _('Ingredient')
+        verbose_name_plural = _('Ingredients')
         constraints = [
             models.UniqueConstraint(fields=('name', 'measurement_unit',),
                                     name='unique ingredient')
@@ -68,7 +64,7 @@ class Recipe(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
     )
-    name = models.CharField(_('Name'), max_length=200, blank=False)
+    name = models.CharField(_('Name'), max_length=200)
     image = models.ImageField(
         _('Image'),
         upload_to='recipes/',
@@ -98,8 +94,8 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ('-pub_date',)
-        verbose_name = 'Recipe'
-        verbose_name_plural = 'Recipes'
+        verbose_name = _('Recipe')
+        verbose_name_plural = _('Recipes')
 
     def __str__(self):
         return self.name
@@ -122,9 +118,12 @@ class RecipeIngredient(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Igredient amount'
-        verbose_name_plural = 'Igredient amounts'
-        unique_together = ("recipe", "ingredient")
+        verbose_name = _('Igredient amount')
+        verbose_name_plural = _('Igredient amounts')
+        constraints = [
+            models.UniqueConstraint(fields=('ingredient', 'recipe',),
+                                    name='unique recipe ingredients')
+        ]
 
 
 class TagRecipe(models.Model):
@@ -137,9 +136,12 @@ class TagRecipe(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Tag recipe'
-        verbose_name_plural = 'Tag recipes'
-        unique_together = ("tag", "recipe")
+        verbose_name = _('Tag recipe')
+        verbose_name_plural = _('Tag recipes')
+        constraints = [
+            models.UniqueConstraint(fields=('tag', 'recipe',),
+                                    name='unique recipe tags')
+        ]
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
@@ -161,9 +163,12 @@ class ShoppingCart(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Shopping cart'
-        verbose_name_plural = 'Shopping carts'
-        unique_together = ("user", "recipe")
+        verbose_name = _('Shopping cart')
+        verbose_name_plural = _('Shopping carts')
+        constraints = [
+            models.UniqueConstraint(fields=('user', 'recipe',),
+                                    name='unique shopping cart')
+        ]
 
 
 class Favorite(models.Model):
@@ -182,6 +187,9 @@ class Favorite(models.Model):
 
     class Meta:
         ordering = ('-id',)
-        verbose_name = 'Favorite'
-        verbose_name_plural = 'Favorites'
-        unique_together = ("user", "recipe")
+        verbose_name = _('Favorite')
+        verbose_name_plural = _('Favorites')
+        constraints = [
+            models.UniqueConstraint(fields=('user', 'recipe',),
+                                    name='unique favorite')
+        ]

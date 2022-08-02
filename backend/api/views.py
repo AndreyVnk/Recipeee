@@ -1,5 +1,7 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -11,15 +13,12 @@ from rest_framework.response import Response
 from api.filters import AuthorAndTagFilter, IngredientSearchFilter
 from api.pagination import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from recipes.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient,
-    ShoppingCart, Tag
-)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 
-from .serializers import (
-    IngredientSerializer, MinRecipeSerializer,
-    RecipeSerializer, TagSerializer
-)
+from .serializers import (IngredientSerializer, MinRecipeSerializer,
+                          RecipeCreateSerializer, RecipeListSerializer,
+                          TagSerializer)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,14 +42,20 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Recipe view."""
 
+    actions_list = ["POST", "PATCH"]
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    serializer_class = RecipeCreateSerializer
     permission_classes = (IsOwnerOrReadOnly,)
     pagination_class = LimitPageNumberPagination
     filter_class = AuthorAndTagFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method in self.actions_list:
+            return RecipeCreateSerializer
+        return RecipeListSerializer
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -73,29 +78,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        user = request.user
-        purchases = user.shopping_cart.all()
-        shopping_cart = {}
-        for purchase in purchases:
-            ingredients = RecipeIngredient.objects.filter(
-                recipe=purchase.recipe
-            ).all()
-            for ingredient in ingredients:
-                name = ingredient.ingredient.name
-                amount = ingredient.amount
-                if name not in shopping_cart.keys():
-                    shopping_cart[name] = amount
-                else:
-                    shopping_cart[name] += amount
-        final_list = {}
-        for ingredient, amount in shopping_cart.items():
-            measurement_unit = get_object_or_404(
-                Ingredient, name=ingredient
-            ).measurement_unit
-            final_list[ingredient] = {
-                'amount': amount,
-                'measurement_unit': measurement_unit
-            }
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user).values_list(
+                'ingredient__name',
+                'ingredient__measurement_unit'
+        ).annotate(count=Sum('amount')).order_by()
         pdfmetrics.registerFont(
             TTFont('DejaVuSans', 'DejaVuSans.ttf', 'UTF-8'))
         response = HttpResponse(content_type='application/pdf')
@@ -106,9 +93,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         page.drawString(230, 770, 'Ingredients list')
         page.setFont('DejaVuSans', size=12)
         height = 650
-        for i, (name, data) in enumerate(final_list.items(), 1):
-            page.drawString(60, height, (f'<{i}> {name} - {data["amount"]}, '
-                                         f'{data["measurement_unit"]}'))
+        for ingredient in ingredients:
+            page.drawString(
+                60, height,
+                ('{} ({}) - {}'.format(*ingredient))
+            )
             height -= 20
         page.showPage()
         page.save()
@@ -117,7 +106,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def add_obj(self, model, request, pk):
         if model.objects.filter(user=request.user, recipe__id=pk).exists():
             return Response({
-                'message': 'Recipe is already in a list'
+                _('message'): _('Recipe is already in a list')
             }, status=status.HTTP_400_BAD_REQUEST)
         recipe = get_object_or_404(Recipe, id=pk)
         model.objects.create(user=request.user, recipe=recipe)
@@ -130,5 +119,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({
-            'message': 'Recipe has already been deleted'
+            _('message'): _('Recipe has already been deleted')
         }, status=status.HTTP_400_BAD_REQUEST)
