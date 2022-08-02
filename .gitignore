@@ -133,3 +133,7 @@ dmypy.json
 
 # media
 /backend/media/
+
+# vscode
+
+.vscode
