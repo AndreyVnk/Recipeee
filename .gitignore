@@ -135,5 +135,5 @@ dmypy.json
 /backend/media/
 
 # vscode
-
+.vscode
 .vscode/
