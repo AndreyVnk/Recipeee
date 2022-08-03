@@ -61,9 +61,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         if request.method == 'POST':
-            return self.add_obj(Favorite, request.user, pk)
+            return self.add_obj(Favorite, request, pk)
         elif request.method == 'DELETE':
-            return self.delete_obj(Favorite, request.user, pk)
+            return self.delete_obj(Favorite, request, pk)
         return None
 
     @action(detail=True, methods=['post', 'delete'],
@@ -82,7 +82,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__shopping_cart__user=request.user).values_list(
                 'ingredient__name',
                 'ingredient__measurement_unit',
-        ).annotate(count=Sum('amount')).order_by()
+        ).annotate(count=Sum('amount'))
         pdfmetrics.registerFont(
             TTFont('DejaVuSans', 'DejaVuSans.ttf', 'UTF-8'))
         response = HttpResponse(content_type='application/pdf')

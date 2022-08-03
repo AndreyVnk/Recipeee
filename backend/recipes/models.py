@@ -29,7 +29,7 @@ class Tag(models.Model):
     slug = models.SlugField(_('Tag slug'), unique=True, max_length=50)
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('name',)
         verbose_name = _('Tag')
         verbose_name_plural = _('Tags')
 
@@ -45,7 +45,7 @@ class Ingredient(models.Model):
         _('Measurement_unit'), max_length=15)
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('name',)
         verbose_name = _('Ingredient')
         verbose_name_plural = _('Ingredients')
         constraints = [
@@ -117,7 +117,6 @@ class RecipeIngredient(models.Model):
         validators=[MinValueValidator(0)])
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = _('Igredient amount')
         verbose_name_plural = _('Igredient amounts')
         constraints = [
@@ -135,7 +134,6 @@ class TagRecipe(models.Model):
         Recipe, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = _('Tag recipe')
         verbose_name_plural = _('Tag recipes')
         constraints = [

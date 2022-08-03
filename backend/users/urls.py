@@ -16,6 +16,11 @@ urlpatterns = [
         ChangePasswordView.as_view(),
         name='change-password'
     ),
+    # path(
+    #     'users/subscriptions/',
+    #     FollowViewSet.as_view(),
+    #     name='subscriptions'
+    # ),
     path('', include(router.urls)),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from api.pagination import LimitPageNumberPagination
 from api.serializers import FollowSerializer
-
+from api.permissions import IsOwnerOrReadOnly
 from .mixins import CreateListRetrieveViewSet
 from .models import CustomUser, Follow
 from .serializers import (ChangePasswordSerializer, CreateCustomUserSerializer,
@@ -68,16 +68,19 @@ class UsersViewSet(CreateListRetrieveViewSet):
         serializer = self.get_serializer(user_instance)
         return Response(serializer.data, status.HTTP_200_OK)
 
-    @action(detail=False, permission_classes=(IsAuthenticated,))
+    @action(detail=False, permission_classes=(IsOwnerOrReadOnly,))
     def subscriptions(self, request):
         user = request.user
-        queryset = Follow.objects.filter(user=user)
+        queryset = Follow.objects.filter(
+            user=user
+        )
         serializer = FollowSerializer(
             queryset,
             many=True,
             context={'request': request}
         )
-        return Response(serializer.data, status.HTTP_200_OK)
+        page = self.paginate_queryset(serializer.data)
+        return self.get_paginated_response(page)
 
     @action(
         detail=True,
