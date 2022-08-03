@@ -1,16 +1,12 @@
 from django_filters.rest_framework import FilterSet, filters
+from rest_framework.filters import SearchFilter
 
 from recipes.models import Recipe, Ingredient, Tag
 
 
-class IngredientSearchFilter(FilterSet):
+class IngredientSearchFilter(SearchFilter):
     """Ingredient filter."""
-
-    name = filters.CharFilter(lookup_expr='istartswith')
-
-    class Meta:
-        model = Ingredient
-        fields = ['name']
+    search_param = 'name'
 
 
 class AuthorAndTagFilter(FilterSet):
