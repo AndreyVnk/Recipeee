@@ -63,6 +63,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.PASSPHRASE }}
         stack_file_name: docker-compose.yaml
         script: |
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
@@ -82,7 +83,7 @@ jobs:
           # sudo docker-compose exec backend python manage.py migrate
           # sudo docker-compose exec backend python manage.py load_ingredients
           # sudo docker-compose exec backend python manage.py collectstatic --no-input 
-          
+
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
