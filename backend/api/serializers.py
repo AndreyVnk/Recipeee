@@ -139,7 +139,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                     'This ingredient is in list'
                 )
             ingredient_list.append(ingredient)
-            if int(ingredient['amount']) < 0:
+            if int(ingredient['amount']) <= 0:
                 raise serializers.ValidationError({
                     'ingredients': 'Amount must be more than 0'
                 })
