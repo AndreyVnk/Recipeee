@@ -130,11 +130,11 @@ class TagRecipe(models.Model):
 
     tag = models.ForeignKey(
         Tag, on_delete=models.CASCADE,
-        related_name='tags'
+        related_name='tag'
     )
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='tags'
+        related_name='tag'
     )
 
     class Meta:
