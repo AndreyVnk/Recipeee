@@ -78,6 +78,6 @@ python manage.py load_ingredients
 
 Пример проекта доступен по http://84.201.130.224/ . Документация к API - http://84.201.130.224/api/docs/ . 
 
-**Автор** 
+**Автор**
 
 AndreyVnk
