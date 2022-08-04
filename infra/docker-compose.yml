@@ -8,9 +8,6 @@ services:
       - ./.env
 
   backend:
-    #  build:
-    #  context: ../backend
-    #  dockerfile: Dockerfile
     image: veneklasen/foodgram_backend:latest
     restart: always
     volumes:
@@ -22,9 +19,6 @@ services:
       - ./.env 
 
   frontend:
-    #  build:
-    #  context: ../frontend
-    #  dockerfile: Dockerfile
     image: veneklasen/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
