@@ -47,7 +47,7 @@ DB_PORT=5432 # порт для подключения к БД
 ```
 server_name <server_ip_address>;
 ```
-### 4. Подготовьте сервер
+### 4. Подготовить сервер
 Установите docker и docker-compose
 ```
 https://docs.docker.com/engine/
@@ -65,11 +65,15 @@ git push
 ```
 ### 7. На сервере выполнить следующие команды
 ```
-sudo docker exec <CONTAINER ID> python manage.py migrate
-sudo docker exec <CONTAINER ID> python manage.py collectstatic --no-input
-sudo docker exec <CONTAINER ID> python manage.py createsuperuser
-sudo docker exec <CONTAINER ID> python manage.py load_ingredients
+sudo docker exec -it <BACKEND CONTAINER ID> bash
+python manage.py migrate
+python manage.py collectstatic --no-input
+python manage.py createsuperuser
+python manage.py load_ingredients
 ```
+### 8. Добавить теги
+Добавьте теги через admin panel.
+
 Эндпоинты, описанные в документации доступны на корневом адресе проекта: http://<server_ip_address>/api/. Документация к API доступна на http://<server_ip_address>/api/docs/ .
 
 Пример проекта доступен по http://84.201.130.224/ . Документация к API - http://84.201.130.224/api/docs/ . 
