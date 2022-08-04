@@ -43,7 +43,7 @@ POSTGRES_PASSWORD=postgres # пароль для подключения к БД 
 DB_HOST=db # название сервиса (контейнера)
 DB_PORT=5432 # порт для подключения к БД
 ```
-### 3. Изменить настройки default.conf в папке infra/nginx/
+### 3. Изменить настройки nginx.conf в папке infra/
 ```
 server_name <server_ip_address>;
 ```
@@ -52,7 +52,7 @@ server_name <server_ip_address>;
 ```
 https://docs.docker.com/engine/
 ```
-### 5. Выполнить копирование файлов docker-compose.yaml и nginx/default.conf на сервер
+### 5. Выполнить копирование файлов docker-compose.yaml и nginx.conf на сервер
 ```
 scp infra/docker-compose.yaml <user>@<ip_address>:/home/<user>/docker-compose.yaml
 scp infra/nginx.conf <user>@<ip_address>:/home/<user>/nginx.conf
