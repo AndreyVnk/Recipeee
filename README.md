@@ -65,10 +65,10 @@ git push
 ```
 ### 7. На сервере выполнить следующие команды
 ```
-sudo docker-compose exec foodgram_backend python manage.py migrate
-sudo docker-compose exec foodgram_backend python manage.py collectstatic --no-input
-sudo docker-compose exec foodgram_backend python manage.py createsuperuser
-sudo docker-compose exec foodgram_backend python manage.py load_ingredients
+sudo docker exec <CONTAINER ID> python manage.py migrate
+sudo docker exec <CONTAINER ID> python manage.py collectstatic --no-input
+sudo docker exec <CONTAINER ID> python manage.py createsuperuser
+sudo docker exec <CONTAINER ID> python manage.py load_ingredients
 ```
 Эндпоинты, описанные в документации доступны на корневом адресе проекта: http://<server_ip_address>/api/. Документация к API доступна на http://<server_ip_address>/api/docs/ .
 
