@@ -1,4 +1,4 @@
-![example workflow](https://github.com/AndreyVnk/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+![example workflow](https://github.com/AndreyVnk/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
 # Foodgram project
 
 **Foodgram project** - проект, поддерживающий обмен данными в формате *JSON*. Развернут в 4х Docker контейнерах (db, backend, frontend, nginx).
