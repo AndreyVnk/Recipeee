@@ -114,7 +114,7 @@ class RecipeIngredient(models.Model):
     )
     amount = models.IntegerField(
         _('Amount'),
-        validators=[MinValueValidator(0)])
+        validators=[MinValueValidator(1)])
 
     class Meta:
         verbose_name = _('Igredient amount')

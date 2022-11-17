@@ -49,8 +49,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = (
-            "id",
-            "amount",
+            'id',
+            'amount',
         )
 
 
@@ -69,18 +69,17 @@ class RecipeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            "id",
-            "tags",
-            "author",
-            "ingredients",
-            "is_favorited",
-            "is_in_shopping_cart",
-            "name",
-            "image",
-            "text",
-            "cooking_time",
-        )
-
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )'
     def get_ingredients(self, obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
         return AmountIngredientSerializer(ingredients, many=True).data
@@ -126,23 +125,22 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags = data['tags']
         if not tags:
             raise serializers.ValidationError(
-                {"Message": "Tags must be set"}
+                {'Tag': 'Tags must be set'}
             )
         if not ingredients:
             raise serializers.ValidationError(
-                {"Message": "Ingredients must be set"}
+                {'ingredients': 'Ingredients must be set'}
             )
         ingredient_list = []
         for ingredient in ingredients:
             if ingredient in ingredient_list:
                 raise serializers.ValidationError(
-                    'This ingredient is in list'
-                )
+                    {'ingredient': 'This ingredient is in list'})
             ingredient_list.append(ingredient)
             if int(ingredient['amount']) <= 0:
-                raise serializers.ValidationError({
-                    'ingredients': 'Amount must be more than 0'
-                })
+                raise serializers.ValidationError(
+                    {'amount': 'Amount must be more than 0'}
+                    )
         data['ingredients'] = ingredients
         data['tags'] = tags
         return data
@@ -176,7 +174,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, recipe):
         return RecipeListSerializer(
-            recipe, context={"request": self.context.get("request")}
+            recipe, context={'request': self.context.get('request')}
         ).data
 
 

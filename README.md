@@ -70,13 +70,12 @@ python manage.py migrate
 python manage.py collectstatic --no-input
 python manage.py createsuperuser
 python manage.py load_ingredients
+python manage.py load_tags
 ```
-### 8. Добавить теги
-Добавьте теги через admin panel.
 
 Эндпоинты, описанные в документации доступны на корневом адресе проекта: http://<server_ip_address>/api/. Документация к API доступна на http://<server_ip_address>/api/docs/ .
 
-Пример проекта доступен по http://84.201.130.224/ . Документация к API - http://84.201.130.224/api/docs/ . 
+Пример проекта доступен по http://food-portal.ddns.net/ или http://84.201.130.224/ . Документация к API - http://84.201.130.224/api/docs/ . 
 
 **Автор**
 

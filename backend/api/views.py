@@ -42,7 +42,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Recipe view."""
 
-    actions_list = ["POST", "PATCH"]
+    actions_list = ['POST', 'PATCH']
     queryset = Recipe.objects.all()
     serializer_class = RecipeCreateSerializer
     permission_classes = (IsOwnerOrReadOnly,)

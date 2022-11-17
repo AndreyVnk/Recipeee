@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='secret_django_key'),
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '84.201.130.224']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '84.201.130.224', 'food-portal.ddns.net']
 
 INSTALLED_APPS = [
     'django.contrib.auth',

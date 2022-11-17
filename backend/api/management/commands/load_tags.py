@@ -5,16 +5,16 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.utils import IntegrityError
 
-from recipes.models import Ingredient
+from recipes.models import Tag
 
 DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
-    help = 'loading ingredients from data in json'
+    help = 'loading tags from data in json'
 
     def add_arguments(self, parser):
-        parser.add_argument('filename', default='ingredients.json', nargs='?',
+        parser.add_argument('filename', default='tags.json', nargs='?',
                             type=str)
 
     def handle(self, *args, **options):
@@ -22,14 +22,16 @@ class Command(BaseCommand):
             with open(os.path.join(DATA_ROOT, options['filename']), 'r',
                       encoding='utf-8') as f:
                 data = json.load(f)
-                for ingredient in data:
+                for tag in data:
                     try:
-                        Ingredient.objects.create(
-                            name=ingredient["name"],
-                            measurement_unit=ingredient["measurement_unit"])
+                        Tag.objects.create(
+                            name=tag["name"],
+                            color=tag["color"],
+                            slug=tag["slug"])
                     except IntegrityError:
-                        print(f'Ingredient {ingredient["name"]} '
-                              f'{ingredient["measurement_unit"]} '
+                        print(f'Tag {tag["name"]} '
+                              f'{tag["color"]} '
+                              f'{tag["slug"]} '
                               f'is already in db.')
             print('Done.')
 
