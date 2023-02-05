@@ -101,7 +101,7 @@ class UsersViewSet(CreateListRetrieveViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         if request.user == author:
             return Response({
-                _('message'): _('You can't subscribe on yourself')
+                _('message'): _('You can\'t subscribe on yourself')
             }, status=status.HTTP_400_BAD_REQUEST)
         follow = model.objects.create(user=request.user, author=author)
         serializer = FollowSerializer(
@@ -113,7 +113,7 @@ class UsersViewSet(CreateListRetrieveViewSet):
         author = get_object_or_404(CustomUser, id=pk)
         if request.user == author:
             return Response({
-                _('errors'): _('You can't unsubcribed on yourself')
+                _('errors'): _('You can\'t unsubcribed on yourself')
             }, status=status.HTTP_400_BAD_REQUEST)
         obj = model.objects.filter(user=request.user, author=author)
         if obj.exists():

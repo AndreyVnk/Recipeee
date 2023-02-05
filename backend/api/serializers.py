@@ -79,7 +79,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
-        )'
+        )
     def get_ingredients(self, obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
         return AmountIngredientSerializer(ingredients, many=True).data

@@ -58,7 +58,7 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['username'] == 'me':
             raise serializers.ValidationError(
-                {_('Wrong username'): _('User 'me' can not be created.')}
+                {_('Wrong username'): _('User \'me\' can not be created.')}
             )
         return data
 
