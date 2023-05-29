@@ -1,4 +1,4 @@
-![example workflow](https://github.com/AndreyVnk/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
+![example workflow](https://github.com/AndreyVnk/Recipeee/actions/workflows/main.yaml/badge.svg)
 # Recipeee project
 
 **Recipeee project** - проект, поддерживающий обмен данными в формате *JSON*. Развернут в 4х Docker контейнерах (db, backend, frontend, nginx).
@@ -23,7 +23,7 @@ Cистема аутентификация реализована через п�
 ## Запуск проекта ##
 ### 1. Склонировать репозиторий
 ```
-git clone https://github.com/AndreyVnk/foodgram-project-react.git && cd foodgram-project-react/
+git clone https://github.com/AndreyVnk/Recipeee.git && cd Recipeee/
 ```
 ### 2. Добавить Action Secrets
 ```
