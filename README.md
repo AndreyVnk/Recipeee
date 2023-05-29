@@ -1,7 +1,7 @@
 ![example workflow](https://github.com/AndreyVnk/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
-# Foodgram project
+# Recipeee project
 
-**Foodgram project** - проект, поддерживающий обмен данными в формате *JSON*. Развернут в 4х Docker контейнерах (db, backend, frontend, nginx).
+**Recipeee project** - проект, поддерживающий обмен данными в формате *JSON*. Развернут в 4х Docker контейнерах (db, backend, frontend, nginx).
 
 Настроены CI и CD: автоматический запуск тестов (PEP8), обновление образов на Docker Hub,автоматический деплой на боевой сервер при push в ветку master.
 
